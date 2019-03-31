@@ -32,7 +32,8 @@ public class SudokuSolver {
                 System . out . println (" Unsatisfiable !");
             }
 
-        } catch ( ParseFormatException | IOException ignored) {
+        } catch ( ParseFormatException | IOException e) {
+            System.out.println("Оштбка чтения файла!");
         } catch ( ContradictionException e) {
             System .out . println (" Unsatisfiable ( trivial )!");
         } catch ( TimeoutException e) {
@@ -44,7 +45,7 @@ public class SudokuSolver {
         for (int i = 0; i < FormulaGenerator.FIELD_SIZE; i++) {
             for (int j = 0; j < FormulaGenerator.FIELD_SIZE; j++) {
                 for (int k = 0; k < FormulaGenerator.NUM_COUNT; k++) {
-                    int index = i*FormulaGenerator.FIRST_DISCHARGE_SHIFT + j*FormulaGenerator.SECOND_DISCHARGE_SHIFT + k;
+                    int index = i*FormulaGenerator.FIRST_SHIFT + j*FormulaGenerator.SECOND_SHIFT + k;
                     if (res[index] > 0) {
                         System.out.print((k + 1) + " ");
                     }
