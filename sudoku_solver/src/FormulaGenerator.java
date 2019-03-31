@@ -38,14 +38,14 @@ public class FormulaGenerator {
 
         BufferedReader reader = new BufferedReader(new FileReader(inputFilePath));
         String buff = "";
-        String[] characters;
+        char[] characters;
 
         int i = 0;
 
         while ((buff = reader.readLine()) != null) {
-            characters = buff.split("\\.");
+            characters = buff.toCharArray();
             for (int j = 0; j < characters.length; j++) {
-                if (!characters[j].equals(" ")) {
+                if (characters[j] != '.') {
                     addNum(i, j, Integer.parseInt(String.valueOf(characters[j])) - 1);
                     endClause();
                 }
