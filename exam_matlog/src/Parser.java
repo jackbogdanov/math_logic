@@ -96,11 +96,17 @@ public class Parser {
             }
         }
 
+        LogicOperation op = LogicOperation.IMPLICATION;
+
+        while (op != LogicOperation.END_OP) {
+            form = form.replace(op.getStringVal(), op.getUnicodeVal());
+            op = op.next();
+        }
         return form;
     }
 
     public static FormulaTree parse(String input) {
-        return parse(input, LogicOperation.CONSEQUENCE);
+        return parse(input, LogicOperation.IMPLICATION);
     }
 
     private static FormulaTree parse(String input, LogicOperation durOp) {
@@ -116,7 +122,7 @@ public class Parser {
         switch (durOp) {
             case CONJUNCTION:
             case DISJUNCTION:
-            case CONSEQUENCE:
+            case IMPLICATION:
                 FormulaTree left = parse(input.substring(0, index), durOp);
                 FormulaTree right = parse(input.substring(index + durOp.getStringVal().length()), durOp);
 

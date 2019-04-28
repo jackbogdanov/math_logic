@@ -4,6 +4,7 @@ import formulaTree.Node;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class SeqTreeBuilder {
 
@@ -14,168 +15,202 @@ public class SeqTreeBuilder {
     private static final int RIGHT_BRANCH = 1;
     private static final int NEGATIVE_BRANCH = 0;
 
+    private boolean isCounterexampleFind;
+
 
     public SeqTreeBuilder() {
-
+        isCounterexampleFind = false;
     }
 
-    public static void build(FormulaTree tree, String outputFileName) {
+    public void build(FormulaTree tree, String outputFileName) {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph {\n");
+        sb.append("rankdir = BT\n");
 
-        build(new Sequence(tree), sb);
+        build(new Sequent(tree), sb);
         sb.append("}\n");
 
         saveToFile(sb, outputFileName);
+
+        if (!isCounterexampleFind) {
+            System.out.println("CounterExample not found");
+        }
     }
 
-    private static void build(Sequence sequence, StringBuilder sb) {
+    private void build(Sequent sequent, StringBuilder sb) {
 
         int mode;
 
-        Node tree = sequence.getFirstPositive();
+        Node tree = sequent.getFirstFromAntecedent();
 
         if (tree != null) {
             mode = POSITIVE_MODE;
         } else {
-            tree = sequence.getFirstNegative();
+            tree = sequent.getFirstFromSuccedent();
             mode = NEGATIVE_MODE;
 
             if (tree == null) {
+
+                if (sequent.isAxiom()) {
+                    sb.append('\"').append(sequent).append('\"').
+                            append("[style=\"filled\",fillcolor=\"red\"];\n");
+                } else {
+                    sb.append('\"').append(sequent).append('\"').
+                            append("[style=\"filled\",fillcolor=\"green\"];\n");
+                    if (!isCounterexampleFind) {
+                        isCounterexampleFind = true;
+                        printResult(sequent);
+                    }
+                }
+
                 return;
             }
         }
 
-        step(tree, sequence, mode, sb);
+        step(tree, sequent, mode, sb);
     }
 
-    private static void step(Node tree, Sequence sequence, int mode, StringBuilder sb) {
+    private void printResult(Sequent sequent) {
+        ArrayList<FormulaTree> list = sequent.getAntecedent();
+
+        for (FormulaTree f: list) {
+            System.out.println(f + " = 1");
+        }
+
+        list = sequent.getSuccedent();
+
+        for (FormulaTree f: list) {
+            System.out.println(f + " = 0");
+        }
+    }
+
+    private void step(Node tree, Sequent sequent, int mode, StringBuilder sb) {
 
 
         switch (tree.getOp()) {
-            case CONSEQUENCE:
-                consequenceRuleApplication(sb, mode, sequence, tree);
+            case IMPLICATION:
+                consequenceRuleApplication(sb, mode, sequent, tree);
                 break;
             case DISJUNCTION:
-                disjunctionRuleApplication(sb, mode, sequence, tree);
+                disjunctionRuleApplication(sb, mode, sequent, tree);
                 break;
             case CONJUNCTION:
-                conjunctionRuleApplication(sb, mode, sequence, tree);
+                conjunctionRuleApplication(sb, mode, sequent, tree);
                 break;
             case NEGATION:
-                negationRuleApplication(sb, mode, sequence, tree);
+                negationRuleApplication(sb, mode, sequent, tree);
                 break;
         }
     }
 
-    private static void consequenceRuleApplication(StringBuilder sb, int mode, Sequence sequence, Node tree) {
+    private void consequenceRuleApplication(StringBuilder sb, int mode, Sequent sequent, Node tree) {
         FormulaTree[] br = tree.getBranches();
 
         if (mode == POSITIVE_MODE) {
-            String str = sequence.toString();
-            sequence.removeFormula(POSITIVE_MODE, tree);
+            String str = sequent.toString();
+            sequent.removeFormula(POSITIVE_MODE, tree);
 
-            Sequence s1 = new Sequence(sequence);
-            s1.addToPositive(br[RIGHT_BRANCH]);
+            Sequent s1 = new Sequent(sequent);
+            s1.addToAntecedent(br[RIGHT_BRANCH]);
             write(sb, str, s1.toString());
             build(s1, sb);
 
-            Sequence s2 = new Sequence(sequence);
-            s2.addToNegative(br[LEFT_BRANCH]);
+            Sequent s2 = new Sequent(sequent);
+            s2.addToSuccedent(br[LEFT_BRANCH]);
             write(sb, str, s2.toString());
             build(s2, sb);
         } else {
-            String str = sequence.toString();
-            sequence.removeFormula(NEGATIVE_MODE, tree);
-            Sequence s1 = new Sequence(sequence);
-            s1.addToPositive(br[LEFT_BRANCH]);
-            s1.addToNegative(br[RIGHT_BRANCH]);
+            String str = sequent.toString();
+            sequent.removeFormula(NEGATIVE_MODE, tree);
+            Sequent s1 = new Sequent(sequent);
+            s1.addToAntecedent(br[LEFT_BRANCH]);
+            s1.addToSuccedent(br[RIGHT_BRANCH]);
             write(sb, str, s1.toString());
             build(s1, sb);
         }
     }
 
-    private static void disjunctionRuleApplication(StringBuilder sb, int mode, Sequence sequence, Node tree) {
+    private void disjunctionRuleApplication(StringBuilder sb, int mode, Sequent sequent, Node tree) {
         FormulaTree[] br = tree.getBranches();
 
         if (mode == POSITIVE_MODE) {
-            String str = sequence.toString();
-            sequence.removeFormula(POSITIVE_MODE, tree);
+            String str = sequent.toString();
+            sequent.removeFormula(POSITIVE_MODE, tree);
 
-            Sequence s1 = new Sequence(sequence);
-            s1.addToPositive(br[LEFT_BRANCH]);
+            Sequent s1 = new Sequent(sequent);
+            s1.addToAntecedent(br[LEFT_BRANCH]);
             write(sb, str, s1.toString());
             build(s1, sb);
 
-            Sequence s2 = new Sequence(sequence);
-            s2.addToPositive(br[RIGHT_BRANCH]);
+            Sequent s2 = new Sequent(sequent);
+            s2.addToAntecedent(br[RIGHT_BRANCH]);
             write(sb, str, s2.toString());
             build(s2, sb);
         } else {
-            String str = sequence.toString();
-            sequence.removeFormula(NEGATIVE_MODE, tree);
-            Sequence s1 = new Sequence(sequence);
-            s1.addToNegative(br[LEFT_BRANCH]);
-            s1.addToNegative(br[RIGHT_BRANCH]);
+            String str = sequent.toString();
+            sequent.removeFormula(NEGATIVE_MODE, tree);
+            Sequent s1 = new Sequent(sequent);
+            s1.addToSuccedent(br[LEFT_BRANCH]);
+            s1.addToSuccedent(br[RIGHT_BRANCH]);
             write(sb, str, s1.toString());
             build(s1, sb);
         }
     }
 
-    private static void conjunctionRuleApplication(StringBuilder sb, int mode, Sequence sequence, Node tree) {
+    private void conjunctionRuleApplication(StringBuilder sb, int mode, Sequent sequent, Node tree) {
         FormulaTree[] br = tree.getBranches();
 
         if (mode == NEGATIVE_MODE) {
-            String str = sequence.toString();
-            sequence.removeFormula(NEGATIVE_MODE, tree);
+            String str = sequent.toString();
+            sequent.removeFormula(NEGATIVE_MODE, tree);
 
-            Sequence s1 = new Sequence(sequence);
-            s1.addToNegative(br[LEFT_BRANCH]);
+            Sequent s1 = new Sequent(sequent);
+            s1.addToSuccedent(br[LEFT_BRANCH]);
             write(sb, str, s1.toString());
             build(s1, sb);
 
-            Sequence s2 = new Sequence(sequence);
-            s2.addToNegative(br[RIGHT_BRANCH]);
+            Sequent s2 = new Sequent(sequent);
+            s2.addToSuccedent(br[RIGHT_BRANCH]);
             write(sb, str, s2.toString());
             build(s2, sb);
         } else {
-            String str = sequence.toString();
-            sequence.removeFormula(POSITIVE_MODE, tree);
-            Sequence s1 = new Sequence(sequence);
-            s1.addToPositive(br[LEFT_BRANCH]);
-            s1.addToPositive(br[RIGHT_BRANCH]);
+            String str = sequent.toString();
+            sequent.removeFormula(POSITIVE_MODE, tree);
+            Sequent s1 = new Sequent(sequent);
+            s1.addToAntecedent(br[LEFT_BRANCH]);
+            s1.addToAntecedent(br[RIGHT_BRANCH]);
             write(sb, str, s1.toString());
             build(s1, sb);
         }
     }
 
-    private static void negationRuleApplication(StringBuilder sb, int mode, Sequence sequence, Node tree) {
+    private void negationRuleApplication(StringBuilder sb, int mode, Sequent sequent, Node tree) {
         FormulaTree[] br = tree.getBranches();
 
         if (mode == POSITIVE_MODE) {
-            String str = sequence.toString();
-            sequence.removeFormula(POSITIVE_MODE, tree);
+            String str = sequent.toString();
+            sequent.removeFormula(POSITIVE_MODE, tree);
 
-            Sequence s1 = new Sequence(sequence);
-            s1.addToNegative(br[NEGATIVE_BRANCH]);
+            Sequent s1 = new Sequent(sequent);
+            s1.addToSuccedent(br[NEGATIVE_BRANCH]);
             write(sb, str, s1.toString());
             build(s1, sb);
 
         } else {
-            String str = sequence.toString();
-            sequence.removeFormula(NEGATIVE_MODE, tree);
-            Sequence s1 = new Sequence(sequence);
-            s1.addToPositive(br[NEGATIVE_BRANCH]);
+            String str = sequent.toString();
+            sequent.removeFormula(NEGATIVE_MODE, tree);
+            Sequent s1 = new Sequent(sequent);
+            s1.addToAntecedent(br[NEGATIVE_BRANCH]);
             write(sb, str, s1.toString());
             build(s1, sb);
         }
     }
 
-    private static void write(StringBuilder sb, String s1, String s2) {
+    private void write(StringBuilder sb, String s1, String s2) {
         sb.append('"').append(s1).append('"').append(" -> ").append('"').append(s2).append("\"\n");
     }
 
-    private static void saveToFile(StringBuilder sb, String outputFileName) {
+    private void saveToFile(StringBuilder sb, String outputFileName) {
         try {
             FileWriter writer = new FileWriter(new File(outputFileName + ".dot"));
 

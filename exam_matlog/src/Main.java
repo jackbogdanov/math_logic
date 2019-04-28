@@ -1,7 +1,6 @@
 import formulaTree.FormulaTree;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -12,7 +11,9 @@ public class Main {
         try {
             BufferedReader reader = new BufferedReader(new FileReader("input.txt"));
             FormulaTree treePart = Parser.parseWithParentheses(reader.readLine());
-            SeqTreeBuilder.build(treePart, "res");
+            SeqTreeBuilder builder = new SeqTreeBuilder();
+
+            builder.build(treePart, "res");
 
         } catch (IOException e) {
             e.printStackTrace();
