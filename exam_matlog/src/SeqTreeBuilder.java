@@ -17,7 +17,6 @@ public class SeqTreeBuilder {
 
     private boolean isCounterexampleFind;
 
-
     public SeqTreeBuilder() {
         isCounterexampleFind = false;
     }
@@ -82,6 +81,8 @@ public class SeqTreeBuilder {
         for (FormulaTree f: list) {
             System.out.println(f + " = 0");
         }
+
+        System.out.println("Other variables can be any value!");
     }
 
     private void step(Node tree, Sequent sequent, int mode, StringBuilder sb) {
@@ -89,7 +90,7 @@ public class SeqTreeBuilder {
 
         switch (tree.getOp()) {
             case IMPLICATION:
-                consequenceRuleApplication(sb, mode, sequent, tree);
+                implicationRuleApplication(sb, mode, sequent, tree);
                 break;
             case DISJUNCTION:
                 disjunctionRuleApplication(sb, mode, sequent, tree);
@@ -103,7 +104,7 @@ public class SeqTreeBuilder {
         }
     }
 
-    private void consequenceRuleApplication(StringBuilder sb, int mode, Sequent sequent, Node tree) {
+    private void implicationRuleApplication(StringBuilder sb, int mode, Sequent sequent, Node tree) {
         FormulaTree[] br = tree.getBranches();
 
         if (mode == POSITIVE_MODE) {
