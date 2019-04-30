@@ -10,8 +10,9 @@ public class Main {
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader("input.txt"));
-            FormulaTree treePart = Parser.parseWithParentheses(reader.readLine());
-            SeqTreeBuilder builder = new SeqTreeBuilder();
+            String input = reader.readLine();
+            FormulaTree treePart = Parser.parseWithParentheses(input);
+            SeqTreeBuilder builder = new SeqTreeBuilder(input);
 
             builder.build(treePart, "res");
 

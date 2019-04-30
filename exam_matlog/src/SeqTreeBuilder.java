@@ -15,10 +15,12 @@ public class SeqTreeBuilder {
     private static final int RIGHT_BRANCH = 1;
     private static final int NEGATIVE_BRANCH = 0;
 
-    private boolean isCounterexampleFind;
+    private Sequent counterExample;
+    private String inputString;
 
-    public SeqTreeBuilder() {
-        isCounterexampleFind = false;
+    public SeqTreeBuilder(String inputString) {
+        counterExample = null;
+        this.inputString = inputString;
     }
 
     public void build(FormulaTree tree, String outputFileName) {
@@ -31,8 +33,21 @@ public class SeqTreeBuilder {
 
         saveToFile(sb, outputFileName);
 
-        if (!isCounterexampleFind) {
+        if (counterExample == null) {
             System.out.println("CounterExample not found");
+        } else {
+            printResult(counterExample);
+
+            String[] allVariables = inputString.split("[^a-z]");
+
+            for (String var : allVariables) {
+                if (!var.equals("")) {
+                    if (!counterExample.isContainVar(var)) {
+                        System.out.println(var + " = 0\n");
+                    }
+                }
+            }
+
         }
     }
 
@@ -56,9 +71,8 @@ public class SeqTreeBuilder {
                 } else {
                     sb.append('\"').append(sequent).append('\"').
                             append("[style=\"filled\",fillcolor=\"green\"];\n");
-                    if (!isCounterexampleFind) {
-                        isCounterexampleFind = true;
-                        printResult(sequent);
+                    if (counterExample == null) {
+                        counterExample = sequent;
                     }
                 }
 
@@ -81,8 +95,6 @@ public class SeqTreeBuilder {
         for (FormulaTree f: list) {
             System.out.println(f + " = 0");
         }
-
-        System.out.println("Other variables can be any value!");
     }
 
     private void step(Node tree, Sequent sequent, int mode, StringBuilder sb) {

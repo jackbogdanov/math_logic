@@ -28,8 +28,8 @@ public class Sequent {
         }
         cleanUp(sb);
 
-        int corkscrewCode = 0x22A2;
-        sb.append(Character.toString((char) corkscrewCode)).append(' ');
+        int turnstileSymbolCode = 0x22A2;
+        sb.append(Character.toString((char) turnstileSymbolCode)).append(' ');
 
         for (FormulaTree t : succedent) {
             sb.append(t.getStringForm()).append("; ");
@@ -44,6 +44,22 @@ public class Sequent {
         if (index != -1) {
             sb.deleteCharAt(index);
         }
+    }
+
+    public boolean isContainVar(String var) {
+        for (FormulaTree node: antecedent) {
+            if (node.getStringForm().equals(var)) {
+                return true;
+            }
+        }
+
+        for (FormulaTree node: succedent) {
+            if (node.getStringForm().equals(var)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public ArrayList<FormulaTree> getAntecedent() {
