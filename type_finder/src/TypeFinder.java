@@ -74,21 +74,13 @@ public class TypeFinder {
         return false;
     }
 
-    private boolean isEachHasReverseElement() {
+    public boolean isEachHasReverseElement() {
         for (int arg : args) {
             boolean flag = true;
             int[] column = op.getTableColumn(arg);
 
-            for (int i : column) {
-                if (i == neutral) {
-                    flag = false;
-                }
-            }
-
-            int[] row = op.getTableRow(arg);
-
-            for (int i: row) {
-                if (i == neutral) {
+            for (int i = 0; i < column.length; i++) {
+                if (column[i] == neutral && op.calculate(arg, i) == neutral) {
                     flag = false;
                 }
             }
