@@ -123,16 +123,4 @@ public class Operation {
         return raw;
     }
 
-    public boolean isClosed() {
-        for (int i = 0; i < elements.length; i++) {
-            for (int j = 0; j < elements.length; j++) {
-                if (getIndex(table[i][j]) == -1) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
 }

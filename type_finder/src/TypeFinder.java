@@ -75,9 +75,8 @@ public class TypeFinder {
     }
 
     private boolean isEachHasReverseElement() {
-        boolean flag = true;
-
         for (int arg : args) {
+            boolean flag = true;
             int[] column = op.getTableColumn(arg);
 
             for (int i : column) {
@@ -89,8 +88,6 @@ public class TypeFinder {
             if (flag) {
                 return false;
             }
-
-            flag = true;
         }
 
         return true;
