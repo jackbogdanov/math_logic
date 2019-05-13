@@ -13,31 +13,28 @@ public class TypeFinder {
     }
 
     public Type getType() {
-        if (op.isClosed()) {
-            return Type.NOTHING;
-        } else {
-            return findResult(new boolean[]{
-                    isContainNeutralElem(),
-                    isEachHasReverseElement(),
-                    isCommutative(),
-                    isAssociative()});
-        }
-    }
-
-    private Type findResult(boolean[] res) {
-        Type operation = Type.MAGMA;
-
-        while (operation != null) {
-            if (Arrays.equals(res, operation.getLabel())) {
-                return operation;
+        if(!op.isClosed()){
+            if(isAssociative()){
+                if(isContainNeutralElem()){
+                    if(isEachHasReverseElement()){
+                        if(isCommutative()){
+                            return Type.ABELIAN_GROUP;
+                        }
+                        return Type.GROUP;
+                    }
+                    if(isCommutative()){
+                        return Type.COMMUTATIVE_MONOID;
+                    }
+                    return Type.MONOID;
+                }
+                return Type.SEMI_GROUP;
             }
-            operation = operation.next();
+            return Type.MAGMA;
         }
-
         return Type.NOTHING;
     }
 
-    private boolean isAssociative() {
+    public boolean isAssociative() {
         for (int arg : args) {
             for (int arg1 : args) {
                 for (int arg2 : args) {
@@ -52,7 +49,7 @@ public class TypeFinder {
         return true;
     }
 
-    private boolean isCommutative() {
+    public boolean isCommutative() {
         for (int arg : args) {
             for (int arg1 : args) {
                 if (op.calculate(arg, arg1) != op.calculate(arg1, arg)) {
@@ -65,7 +62,7 @@ public class TypeFinder {
         return true;
     }
 
-    private boolean isContainNeutralElem() {
+    public boolean isContainNeutralElem() {
         for (int arg : args) {
             int[] column = op.getTableColumn(arg);
             if (Arrays.equals(column, args)){
@@ -80,7 +77,7 @@ public class TypeFinder {
         return false;
     }
 
-    private boolean isEachHasReverseElement() {
+    public boolean isEachHasReverseElement() {
         boolean flag = true;
 
         for (int arg : args) {
