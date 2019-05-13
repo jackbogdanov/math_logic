@@ -85,6 +85,14 @@ public class TypeFinder {
                 }
             }
 
+            int[] row = op.getTableRow(arg);
+
+            for (int i: row) {
+                if (i == neutral) {
+                    flag = false;
+                }
+            }
+
             if (flag) {
                 return false;
             }
