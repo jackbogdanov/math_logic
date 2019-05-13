@@ -1,5 +1,4 @@
 public enum Type {
-    NOTHING,
     MAGMA,
     SEMI_GROUP,
     GROUP,

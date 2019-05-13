@@ -103,7 +103,7 @@ public class Operation {
         return elements;
     }
 
-    public int[] getTableColumn(int arg) {
+    public int[] getTableRow(int arg) {
         int index = getIndex(arg);
         int[] column = new int[elements.length];
 
@@ -112,7 +112,7 @@ public class Operation {
         return column;
     }
 
-    public int[] getTableRaw(int arg) {
+    public int[] getTableColumn(int arg) {
         int index = getIndex(arg);
         int[] raw = new int[elements.length];
 
@@ -127,12 +127,12 @@ public class Operation {
         for (int i = 0; i < elements.length; i++) {
             for (int j = 0; j < elements.length; j++) {
                 if (getIndex(table[i][j]) == -1) {
-                    return true;
+                    return false;
                 }
             }
         }
 
-        return false;
+        return true;
     }
 
 }

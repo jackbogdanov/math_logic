@@ -13,28 +13,25 @@ public class TypeFinder {
     }
 
     public Type getType() {
-        if(!op.isClosed()){
-            if(isAssociative()){
-                if(isContainNeutralElem()){
-                    if(isEachHasReverseElement()){
-                        if(isCommutative()){
-                            return Type.ABELIAN_GROUP;
-                        }
-                        return Type.GROUP;
+        if (isAssociative()) {
+            if (isContainNeutralElem()) {
+                if (isEachHasReverseElement()) {
+                    if (isCommutative()) {
+                        return Type.ABELIAN_GROUP;
                     }
-                    if(isCommutative()){
-                        return Type.COMMUTATIVE_MONOID;
-                    }
-                    return Type.MONOID;
+                    return Type.GROUP;
                 }
-                return Type.SEMI_GROUP;
+                if (isCommutative()) {
+                    return Type.COMMUTATIVE_MONOID;
+                }
+                return Type.MONOID;
             }
-            return Type.MAGMA;
+            return Type.SEMI_GROUP;
         }
-        return Type.NOTHING;
+        return Type.MAGMA;
     }
 
-    public boolean isAssociative() {
+    private boolean isAssociative() {
         for (int arg : args) {
             for (int arg1 : args) {
                 for (int arg2 : args) {
@@ -49,7 +46,7 @@ public class TypeFinder {
         return true;
     }
 
-    public boolean isCommutative() {
+    private boolean isCommutative() {
         for (int arg : args) {
             for (int arg1 : args) {
                 if (op.calculate(arg, arg1) != op.calculate(arg1, arg)) {
@@ -62,11 +59,11 @@ public class TypeFinder {
         return true;
     }
 
-    public boolean isContainNeutralElem() {
+    private boolean isContainNeutralElem() {
         for (int arg : args) {
             int[] column = op.getTableColumn(arg);
             if (Arrays.equals(column, args)){
-                int[] raw = op.getTableRaw(arg);
+                int[] raw = op.getTableRow(arg);
                 if (Arrays.equals(raw,args)) {
                     neutral = arg;
                     return true;
@@ -77,7 +74,7 @@ public class TypeFinder {
         return false;
     }
 
-    public boolean isEachHasReverseElement() {
+    private boolean isEachHasReverseElement() {
         boolean flag = true;
 
         for (int arg : args) {
